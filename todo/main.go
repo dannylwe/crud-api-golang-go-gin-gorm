@@ -12,14 +12,15 @@ import (
 var db *gorm.DB
 
 type Person struct {
-	ID        uint   `json:"id"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
+	ID        int    `gorm:"AUTO_INCREMENT" json:"id"`
+	FirstName string `form:"firstname" json:"firstname"`
+	LastName  string `form:"lastname" json:"lastname"`
 }
 
 func main() {
 	const PORT = "8009"
-	db, err := gorm.Open("sqlite3", "./gorm.db")
+	var err error
+	db, err = gorm.Open("sqlite3", "./gorm.db")
 	if err != nil {
 		fmt.Printf("could not create sqlitedb %v", err)
 	}
@@ -27,22 +28,42 @@ func main() {
 	db.AutoMigrate(&Person{})
 
 	r := gin.Default()
-	r.GET("/", GetProjects)
-	r.POST("/people", CreatePerson)
+	v1 := r.Group("api/v1/todos")
+	{
+		v1.GET("/", SanityCheck)
+		v1.GET("/people", GetPeople)
+		v1.POST("/people", CreatePerson)
+	}
+
 	r.Run(":" + PORT)
 }
 
-func GetProjects(c *gin.Context) {
+func SanityCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "world"})
 }
 
+func GetPeople(c *gin.Context) {
+	var people []Person
+	if err := db.Find(&people).Error; err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		fmt.Println(err)
+	} else {
+		c.JSON(http.StatusOK, gin.H{"list of people": people})
+	}
+}
+
 func CreatePerson(c *gin.Context) {
-	// var person Person
-	// c.BindJSON(&person)
-	// db.Create(&person)
-	// c.JSON(200, person)
-	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusOK, gin.H{
-		"message": "handler not implemented yet",
-	})
+
+	var user Person
+	c.BindJSON(&user)
+
+	if user.FirstName != "" && user.LastName != "" {
+		// INSERT INTO "users" (name) VALUES (user.Name);
+		db.Create(&user)
+		// Display error
+		c.JSON(http.StatusCreated, gin.H{"user created": user})
+	} else {
+		// Display error
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Fields are empty"})
+	}
 }
