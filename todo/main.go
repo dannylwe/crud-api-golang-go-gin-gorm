@@ -11,6 +11,7 @@ import (
 
 var db *gorm.DB
 
+// Person is a datastruct used to hold person info
 type Person struct {
 	ID        int    `gorm:"AUTO_INCREMENT" json:"id"`
 	FirstName string `form:"firstname" json:"firstname"`
@@ -38,10 +39,12 @@ func main() {
 	r.Run(":" + PORT)
 }
 
+// SanityCheck checks whether server is running
 func SanityCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "world"})
 }
 
+// GetPeople getall people records
 func GetPeople(c *gin.Context) {
 	var people []Person
 	if err := db.Find(&people).Error; err != nil {
@@ -52,6 +55,7 @@ func GetPeople(c *gin.Context) {
 	}
 }
 
+// CreatePerson create a single person
 func CreatePerson(c *gin.Context) {
 
 	var user Person
