@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/danny/todo/todo/common"
-	"github.com/danny/todo/todo/models"
+	"github.com/danny/todo/todo/migrations"
 	"github.com/danny/todo/todo/routers"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -18,7 +18,7 @@ func main() {
 		fmt.Printf("could not create sqlitedb %v", err)
 	}
 	defer common.DB.Close()
-	common.DB.AutoMigrate(&models.Person{})
+	migrations.Migrate()
 
 	r := routers.SetupRouter()
 
