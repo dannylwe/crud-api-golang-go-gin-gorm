@@ -41,3 +41,42 @@ func CreatePerson(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Fields are empty"})
 	}
 }
+
+// GetSinglePerson get a single person by Id
+func GetSinglePerson(c *gin.Context) {
+	id := c.Param("id")
+	var person models.Person
+	if err := common.DB.Where("id = ?", id).First(&person).Error; err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		fmt.Println(err)
+	} else {
+		c.JSON(http.StatusOK, gin.H{"single person": person})
+	}
+}
+
+// UpdateSinglePerson update a single Person record
+func UpdateSinglePerson(c *gin.Context) {
+	id := c.Param("id")
+	var person models.Person
+	if err := common.DB.Where("id = ?", id).First(&person).Error; err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		fmt.Println(err)
+	} else {
+		c.BindJSON(&person)
+		common.DB.Save(&person)
+		c.JSON(http.StatusOK, gin.H{"updated person": person})
+	}
+}
+
+// DeleteSinglePerson delete a single person record
+func DeleteSinglePerson(c *gin.Context) {
+	id := c.Param("id")
+	var person models.Person
+	if err := common.DB.Where("id = ?", id).First(&person).Error; err != nil {
+		c.JSON(http.StatusNotFound,
+			gin.H{"message": "user with Id does not exist"})
+	} else {
+		d := common.DB.Where("id = ?", id).Delete(&person)
+		c.JSON(http.StatusOK, gin.H{"deleted user with id " + id: d})
+	}
+}
