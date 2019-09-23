@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/danny/todo/todo/common"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
-
-var db *gorm.DB
 
 // Person is a datastruct used to hold person info
 type Person struct {
@@ -19,14 +18,14 @@ type Person struct {
 }
 
 func main() {
-	const PORT = "8009"
+	
 	var err error
-	db, err = gorm.Open("sqlite3", "./gorm.db")
+	common.DB, err = gorm.Open("sqlite3", "./gorm.db")
 	if err != nil {
 		fmt.Printf("could not create sqlitedb %v", err)
 	}
-	defer db.Close()
-	db.AutoMigrate(&Person{})
+	defer common.DB.Close()
+	common.DB.AutoMigrate(&Person{})
 
 	r := gin.Default()
 	v1 := r.Group("api/v1/todos")
@@ -36,7 +35,7 @@ func main() {
 		v1.POST("/people", CreatePerson)
 	}
 
-	r.Run(":" + PORT)
+	r.Run(":" + common.PORT)
 }
 
 // SanityCheck checks whether server is running
@@ -47,7 +46,7 @@ func SanityCheck(c *gin.Context) {
 // GetPeople getall people records
 func GetPeople(c *gin.Context) {
 	var people []Person
-	if err := db.Find(&people).Error; err != nil {
+	if err := common.DB.Find(&people).Error; err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
 		fmt.Println(err)
 	} else {
@@ -63,7 +62,7 @@ func CreatePerson(c *gin.Context) {
 
 	if user.FirstName != "" && user.LastName != "" {
 		// INSERT INTO "users" (name) VALUES (user.Name);
-		db.Create(&user)
+		common.DB.Create(&user)
 		// Display error
 		c.JSON(http.StatusCreated, gin.H{"user created": user})
 	} else {
