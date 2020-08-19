@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/danny/todo/todo/common"
@@ -29,7 +30,10 @@ func GetPeople(c *gin.Context) {
 func CreatePerson(c *gin.Context) {
 
 	var user models.Person
-	c.BindJSON(&user)
+	err := c.BindJSON(&user)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if user.FirstName != "" && user.LastName != "" {
 		// INSERT INTO "users" (name) VALUES (user.Name);
@@ -62,7 +66,10 @@ func UpdateSinglePerson(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
 		fmt.Println(err)
 	} else {
-		c.BindJSON(&person)
+		err := c.BindJSON(&person)
+		if err != nil {
+			log.Fatal(err)
+		}
 		common.DB.Save(&person)
 		c.JSON(http.StatusOK, gin.H{"updated person": person})
 	}
