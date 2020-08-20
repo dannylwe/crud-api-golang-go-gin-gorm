@@ -1,3 +1,5 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f022e00be11b4e59bd4a3dc36c46725c)](https://www.codacy.com/manual/dannylwe/crud-api-golang-go-gin-gorm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dannylwe/crud-api-golang-go-gin-gorm&amp;utm_campaign=Badge_Grade)
+
 #### Installation and Run
 - run `git clone https://github.com/dannylwe/crud-api-golang-go-gin-gorm`
 - run `go mod download`
